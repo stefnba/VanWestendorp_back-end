@@ -25,7 +25,7 @@ SECRET_KEY = 'r==ps8f54=+^@zk9twdd*%(_squtcyf5_u%l_ci$@f30s=ge(7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['68.66.240.246', '127.0.0.1']
 
 
 # Application definition
@@ -40,15 +40,15 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    # 'corsheaders',
+    'corsheaders',
     
     'main',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # added for CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'corsheaders.middleware.CorsMiddleware', # added for CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Berlin'
 
 USE_I18N = True
 
@@ -152,6 +152,9 @@ REST_FRAMEWORK = {
 }
 
 # CORS whitelist host for preflight error
-# CORS_ORIGIN_WHITELIST = (
-#     'localhost:3000',
-# )
+CORS_ORIGIN_WHITELIST = (
+	'http://skp-tools.com',
+	'skp-tools.com',
+	'localhost:3000',
+	'localhost',
+ )

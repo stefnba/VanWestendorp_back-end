@@ -17,6 +17,7 @@ def valid_pct(val):
 class Answers(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     project = models.CharField(max_length=255, blank=True, null=True)
+    client_segment = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     exo_toocheap = models.CharField(max_length=255, validators=[valid_pct]) 
     exo_cheap = models.CharField(max_length=255, validators=[valid_pct]) 
@@ -34,7 +35,3 @@ class Answers(models.Model):
     dvv_cheap = models.CharField(max_length=255, validators=[valid_pct]) 
     dvv_epensive = models.CharField(max_length=255, validators=[valid_pct]) 
     dvv_tooexpensive = models.CharField(max_length=255, validators=[valid_pct]) 
-
-class Test(models.Model):
-    name = models.CharField(max_length=255, blank=True, null=True)
-    dvv_epensive = models.CharField(max_length=255, validators=[valid_pct]) 

@@ -4,7 +4,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.response import Response
 
 from .serializers import AnswersSerializer
-from .models import Answers, Test
+from .models import Answers
 
 from django.http import HttpResponse
 

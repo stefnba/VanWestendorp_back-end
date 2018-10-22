@@ -1,37 +1,79 @@
 from django.db import models
 
+from django.core.validators import MaxValueValidator
+
+
 # Create your models here.
 
-def valid_pct(val):
-    if val.endswith("%"):
-       return float(val[:-1])/100
-    else:
-       try:
-          return float(val)
-       except ValueError:          
-          raise ValidationError(
-              _('%(value)s is not a valid pct'),
-                params={'value': value},
-           )
-
-class Answers(models.Model):
+class Project(models.Model):
+    name = models.CharField(max_length=255)
+    hash_url = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    project = models.CharField(max_length=255, blank=True, null=True)
-    client_segment = models.CharField(max_length=255, blank=True, null=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
-    exo_toocheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    exo_cheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    exo_epensive = models.CharField(max_length=255, validators=[valid_pct]) 
-    exo_tooexpensive = models.CharField(max_length=255, validators=[valid_pct]) 
-    basis_toocheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    basis_cheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    basis_epensive = models.CharField(max_length=255, validators=[valid_pct]) 
-    basis_tooexpensive = models.CharField(max_length=255, validators=[valid_pct]) 
-    plus_toocheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    plus_cheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    plus_epensive = models.CharField(max_length=255, validators=[valid_pct]) 
-    plus_tooexpensive = models.CharField(max_length=255, validators=[valid_pct]) 
-    dvv_toocheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    dvv_cheap = models.CharField(max_length=255, validators=[valid_pct]) 
-    dvv_epensive = models.CharField(max_length=255, validators=[valid_pct]) 
-    dvv_tooexpensive = models.CharField(max_length=255, validators=[valid_pct]) 
+    created_by = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+class Question_Type(models.Model):
+    name = models.CharField(max_length=255)
+    name_short = models.CharField(max_length=255)
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+class Question(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    question = models.CharField(max_length=255)
+    type = models.ForeignKey(Question_Type, on_delete=models.CASCADE)
+    rank = models.IntegerField()
+    category = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    input_suffix = models.CharField(max_length=3, blank=True, null=True)
+    input_prefix = models.CharField(max_length=3, blank=True, null=True)
+
+    class Meta:
+        ordering = ['project', 'rank']
+
+    def __str__(self):
+        return '{}: {}'.format(self.project, self.question)
+
+class VW_Input_Type(models.Model):
+    name = models.CharField(max_length=255)
+    name_short = models.CharField(max_length=255)
+    order = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+
+class Input_Title(models.Model):
+    question = models.ForeignKey(Question, related_name='input_title', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    order = models.IntegerField()
+    is_writeable = models.BooleanField(default=True)
+    is_prefilled = models.IntegerField(blank=True, null=True)
+    decimal_scale = models.IntegerField(default=0, validators=[MaxValueValidator(4)])
+    vw_type = models.ForeignKey(VW_Input_Type, blank=True, null=True, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['question', 'order']
+
+    def __str__(self):
+        return '{}: {}: {}'.format(self.question.project, self.question.question, self.title)
+
+class Input_Answer(models.Model):
+    # question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    input_title = models.ForeignKey(Input_Title, on_delete=models.CASCADE, related_name='input')
+    input = models.DecimalField(max_digits=10, decimal_places=6)
+    
+    def __str__(self):
+        return '{}: {}'.format(self.input_title, self.input)
+
+class Input_User(models.Model):
+    answer = models.ManyToManyField(Input_Answer, related_name='fav')
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{}: {} @ {}'.format(self.project, self.name, self.created_at)
